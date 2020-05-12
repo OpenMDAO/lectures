@@ -105,9 +105,11 @@ class BeamMoment(om.ExplicitComponent):
 
 if __name__ == "__main__": 
 
+    import time
+
     p = om.Problem()
 
-    N = 1e6
+    N = 4
     ivc = p.model.add_subsystem('ivc', om.IndepVarComp(), promotes=['*'])
     ivc.add_output('F', 10, units='N')
     ivc.add_output('alpha', 45, units='deg')
@@ -120,9 +122,6 @@ if __name__ == "__main__":
  
     p.run_model()
 
-    N_REPEAT = 100
-    st = time.time()
-    for i in range(N_REPEAT): 
-        J_total = p.compute_totals(of=['M'], wrt=['F', 'Q', 'alpha'])
-    # print(J_total)
-    print('deriv time:', (time.time()-st)/N_REPEAT)
+    p.model.list_outputs(print_arrays=True) 
+
+    p.check_partials(method='cs')

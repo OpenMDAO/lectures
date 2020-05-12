@@ -136,16 +136,7 @@ if __name__ == "__main__":
  
     p.run_model()
 
-    N_REPEAT = 100
-    st = time.time()
-    for i in range(N_REPEAT): 
-        J_total = p.compute_totals(of=['M'], wrt=['F', 'Q', 'alpha'])
-    # print(J_total)
-    print('deriv time:', (time.time()-st)/N_REPEAT)
+    p.model.list_outputs(print_arrays=True) 
 
-    # p.model.list_outputs(print_arrays=True) 
+    p.check_partials(method='cs')
 
-    # p.check_partials(method='cs')
-
-    # x_k = p.model.beam.x[p.model.beam.options['idx_F']]*p['l']
-    # print(-p['Q'][0]*p['l']**2/2+p['F']*np.cos(p['alpha'])*(x_k))
