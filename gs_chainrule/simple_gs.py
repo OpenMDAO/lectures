@@ -3,7 +3,7 @@ import numpy as np
 nn = 3
 
 data = np.empty(nn*3)
-nl_vec = {}
+nl_vec = {} # these dictionaries are analagous to the vector objects in OpenMDAO
 nl_vec['x'] = data[:3]
 nl_vec['y'] = data[3:6]
 nl_vec['z'] = data[6:9]
@@ -184,23 +184,48 @@ if __name__ == "__main__":
     print('  Z solve', data_r)
     print('         ', data_o)
 
+    print('dZ/dx[0]', ln_o['z'])
 
-    print('CS check')
-    data_r[:] = data
-    print(data_r)
-    data_r[0] += .000001
-    print(data_r)
 
-    # X(ln_r, ln_r)
+    print(50*'#')
+    print('# FD check')
+    print(50*'#')
+
+    # use  ln_r as a scratch vector for this check 
+    # OpenMDAO does this to avoid allocating more memory for these checks
+    data_r[:] = data #copy data into data_r (which is the memory associated with ln_r vector)
+    ln_r['x'][0] += .000001
+
+    # X(ln_r, ln_r) # don't call the X function, because it would mess up our increment for the FD
     Y(ln_r, ln_r)
     Z(ln_r, ln_r)
 
 
+    # looking for dz/dx[0]
     fd_check = (ln_r['z'] - nl_vec['z'])/.000001
     print('fd ', fd_check)
 
 
-    # want dz/dx
+    print(50*'#')
+    print('# CS check')
+    print(50*'#')
+
+    data_cs = np.empty(nn*3, dtype=complex)
+    # swap out the memory for the ln_r vector for a complex array
+    ln_r['x'] = data_cs[:3]
+    ln_r['y'] = data_cs[3:6]
+    ln_r['z'] = data_cs[6:9]
+
+
+    data_cs[:] = data #copy the nonlinear baseline into the memory for ln_r
+    ln_r['x'][0] += complex(0,1e-50)
+
+    Y(ln_r, ln_r)
+    Z(ln_r, ln_r)
+
+    # looking for dz/dx[0]
+    cs_check = ln_r['z'].imag/1e-50
+    print('cs ', cs_check)
 
 
 
