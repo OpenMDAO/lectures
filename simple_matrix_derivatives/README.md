@@ -1,3 +1,5 @@
+YouTube Lecture:: https://youtu.be/7c4UJ-meHNY
+
 This lecture covers the basics of implementing analytic derivatives for simple vectorized components --- components that use basic numpy vectorization. 
 When working with basic numpy vectorization the partial derivative Jacobian will be a diagonal matrix. 
 

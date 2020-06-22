@@ -1,4 +1,4 @@
-Lecture: https://youtu.be/4JQ1fMZbR1E
+YouTube Lecture: https://youtu.be/4JQ1fMZbR1E 
 
 This lecture deals with the relationship between the chain rule and using the nonlinear block Gauss-Siedel (NLBGS) algorithm to solve the unified derivative equations. 
 
