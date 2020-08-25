@@ -109,11 +109,11 @@ if __name__ == "__main__":
 
     p = om.Problem()
 
-    N = 4
-    ivc = p.model.add_subsystem('ivc', om.IndepVarComp(), promotes=['*'])
-    ivc.add_output('F', 10, units='N')
-    ivc.add_output('alpha', 45, units='deg')
-    ivc.add_output('Q', 2*np.ones(N), units='N')
+    N = 3
+    # ivc = p.model.add_subsystem('ivc', om.IndepVarComp(), promotes=['*'])
+    # ivc.add_output('F', 10, units='N')
+    # ivc.add_output('alpha', 45, units='deg')
+    # ivc.add_output('Q', 2*np.ones(N), units='N')
     p.model.add_subsystem('beam', BeamMoment(n_q=N, idx_F=2), promotes=['*'])
 
     p.model.linear_solver = om.DirectSolver()
