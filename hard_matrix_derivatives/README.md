@@ -11,4 +11,4 @@ We'll calculate the bending moment along a cantilevered beam under both distribu
 The calculations are discretized and implemented in a for-loop fashion. 
 You'll see how the derivative code structure mimics the for-loop structure from the analysis itself
 
-![simple beam moment](./simple_beam_moment.jpg)
+![simple beam moment](./beam_moment.jpg)
