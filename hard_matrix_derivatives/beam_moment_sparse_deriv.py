@@ -96,7 +96,8 @@ class BeamMoment(om.ExplicitComponent):
                 term1 = (Q[j]*(x[j]-x[i]) + Q[j+1]*(x[j+1]-x[i]))/2.
                 term2 = (x[j+1]-x[j])
 
-                J['M', 'l'][i] -= ((Q[j]*(x_norm[j]-x_norm[i]) + Q[j+1]*(x_norm[j+1]-x_norm[i]))/2. * term2 + 
+                J['M', 'l'][i] -= ((Q[j]*(x_norm[j]-x_norm[i]) + 
+                                    Q[j+1]*(x_norm[j+1]-x_norm[i]))/2. * term2 + 
                                    term1*(x_norm[j+1]-x_norm[j]))
                 
                 offset = i*(i+1)//2
