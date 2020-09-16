@@ -1,24 +1,46 @@
 import numpy as np
 
-nn = 3
 
-data = np.empty(nn*3)
-nl_vec = {} # these dictionaries are analagous to the vector objects in OpenMDAO
+
+data = np.empty(9)
+nl_vec = {} # these dictionaries are analogous to the vector objects in OpenMDAO
 nl_vec['x'] = data[:3]
 nl_vec['y'] = data[3:6]
 nl_vec['z'] = data[6:9]
 
-data_o = np.empty(nn*3)
+data_o = np.empty(9)
 ln_o = {}
 ln_o['x'] = data_o[:3]
 ln_o['y'] = data_o[3:6]
 ln_o['z'] = data_o[6:9]
 
-data_r = np.empty(nn*3)
+ln_i = {}
+ln_i['x'] = data_o[:3]
+ln_i['y'] = np.empty(3)
+ln_i['z'] = data_o[6:9]
+
+# ln_i['x'] = data_o[:3]
+# ln_i['y'] = data_o[3:6]
+# ln_i['z'] = data_o[6:9]
+
+# ln_i['x'] = np.empty(3)
+# ln_i['y'] = np.empty(3)
+# ln_i['z'] = np.empty(3)
+
+data_r = np.empty(9)
 ln_r = {}
 ln_r['x'] = data_r[:3]
 ln_r['y'] = data_r[3:6]
 ln_r['z'] = data_r[6:9]
+
+
+def transfer(var, mode='fwd'): 
+
+    if mode == 'fwd': 
+        ln_i[var][:]=ln_o[var]      
+    else: 
+        ln_o[var][:]+=ln_i[var]
+
 
 
 def X(inputs, outputs): 
@@ -41,7 +63,7 @@ def Z(inputs, outputs):
 # Rz = Z(x,y) - z
 
 def dY__dx(inputs): 
-    return np.eye(nn)*5
+    return np.eye(3)*5
 
 def dZ__dx(inputs): 
     return np.diag(3*inputs['x']**2)
@@ -78,13 +100,13 @@ def Y_apply_linear(inputs, outputs, d_i, d_o, d_r, mode='fwd', sign='pos'):
         if mode == 'fwd': 
             if 'y' in d_r: 
                 if 'x' in d_i: 
-                    d_r['y'] += -5*d_i['x'] # (np.eye(nn)*5).dot(d_i['x'])
+                    d_r['y'] += -5*d_i['x'] # (np.eye(3)*5).dot(d_i['x'])
                 if 'y' in d_o: 
                     d_r['y'] += d_o['y']
         else: # rev
             if 'y' in d_r: 
                 if 'x' in d_i: 
-                    d_i['x'] += -5*d_r['y'] # (np.eye(nn)*5).dot(d_i['x'])
+                    d_i['x'] += -5*d_r['y'] # (np.eye(3)*5).dot(d_i['x'])
                 if 'y' in d_o: 
                     d_o['y'] += d_r['y']
     else: # neg 
@@ -140,9 +162,7 @@ def Z_apply_linear(inputs, outputs, d_i, d_o, d_r, mode='fwd', sign='pos'):
         else: # rev
             if 'z' in d_r: 
                 if 'x' in d_i: 
-                    print('foo', d_r['z'], inputs['x'])
                     d_i['x'] -= -3*inputs['x']**2 * d_r['z'] 
-                    print('bar', d_i['x'], inputs['x'])
                 if 'y' in d_i:
                     d_i['y'] -= -2*inputs['y'] * d_r['z']
                 if 'z' in d_o: 
@@ -182,34 +202,39 @@ if __name__ == "__main__":
 
     data_r[:] = 0
     data_o[:] = 0
+    
+    ln_i['y'][:] = 0
 
     # put the seed in the dv of interest
     ln_r['x'][0] = 1.
 
-    print('init rhs', 'r:', data_r)
-    print('.       ', 'o: ', data_o)
+    print('init rhs', 'dr:', data_r)
+    print('        ', 'do: ', data_o)
 
     # note: ln_i is not actually used, instead we re-use ln_o here
     print('X block')
-    X_apply_linear(nl_vec, nl_vec, ln_o, ln_o, ln_r, mode='fwd', sign='neg')
+    X_apply_linear(nl_vec, nl_vec, ln_i, ln_o, ln_r, mode='fwd', sign='neg')
     print('  X apply', 'r: ', data_r)
     X_solve_linear(ln_r, ln_o)
-    print('  X solve', 'r:', data_r)
-    print('         ', 'o: ', data_o)
+    transfer('x', mode='fwd')
+    print('  X solve', 'dr:', data_r)
+    print('         ', 'do: ', data_o)
 
     print('Y block')
-    Y_apply_linear(nl_vec, nl_vec, ln_o, ln_o, ln_r, mode='fwd', sign='neg')
-    print('  Y apply', 'r:', data_r)
+    Y_apply_linear(nl_vec, nl_vec, ln_i, ln_o, ln_r, mode='fwd', sign='neg')
+    print('  Y apply', 'dr:', data_r)
     Y_solve_linear(ln_r, ln_o)
-    print('  Y solve', 'r: ', data_r)
-    print('         ', 'o: ', data_o)
+    transfer('y', mode='fwd')
+    print('  Y solve', 'dr: ', data_r)
+    print('         ', 'do: ', data_o)
 
     print('Z block')
-    Z_apply_linear(nl_vec, nl_vec, ln_o, ln_o, ln_r, mode='fwd', sign='neg')
-    print('  Z apply', 'r:', data_r)
+    Z_apply_linear(nl_vec, nl_vec, ln_i, ln_o, ln_r, mode='fwd', sign='neg')
+    print('  Z apply', 'dr:', data_r)
     Z_solve_linear(ln_r, ln_o)
-    print('  Z solve', 'r:', data_r)
-    print('         ', 'o: ', data_o)
+    transfer('z', mode='fwd')
+    print('  Z solve', 'dr:', data_r)
+    print('         ', 'do: ', data_o)
 
     print('dZ/dx[0]', ln_o['z'])
 
@@ -237,7 +262,7 @@ if __name__ == "__main__":
     print('# CS check')
     print(50*'#')
 
-    data_cs = np.empty(nn*3, dtype=complex)
+    data_cs = np.empty(9, dtype=complex)
     # swap out the memory for the ln_r vector for a complex array
     ln_r['x'] = data_cs[:3]
     ln_r['y'] = data_cs[3:6]
@@ -270,36 +295,44 @@ if __name__ == "__main__":
     data_r[:] = 0
     data_o[:] = 0
 
-    # put the seed into the output of interest
-    ln_r['z'][0] = 1.
+    ln_i['x'][:] = 0
+    ln_i['y'][:] = 0
+    ln_i['z'][:] = 0
 
-    print('init rhs', 'r:', data_r)
-    print('.       ', 'o: ', data_o)
+    # put the seed into the output of interest
+    ln_o['z'][0] = 1.
+
+    print('init rhs', 'dr:', data_r)
+    print('.       ', 'do: ', data_o)
 
     print('Z block')
-    Z_solve_linear(ln_r, ln_o)
-    print('  Z solve', 'r:', data_r)
-    print('         ', 'o: ', data_o)
-    Z_apply_linear(nl_vec, nl_vec, ln_r, ln_o, ln_r, mode='rev', sign='neg')
-    print('  Z apply', 'r:', data_r)
+    # transfer('z', mode='rev')
+    Z_solve_linear(ln_o, ln_r)
+    print('  Z solve', 'dr:', data_r)
+    print('         ', 'do: ', data_o)
+    Z_apply_linear(nl_vec, nl_vec, ln_i, ln_o, ln_r, mode='rev', sign='neg')
+    print('  Z apply', 'dr:', data_r)
    
 
     print('Y block')
-    Y_solve_linear(ln_r, ln_o)
-    print('  Y solve', 'r: ', data_r)
-    print('         ', 'o: ', data_o)
-    Y_apply_linear(nl_vec, nl_vec, ln_r, ln_o, ln_r, mode='rev', sign='neg')
-    print('  Y apply', 'r:', data_r)
+    transfer('y', mode='rev')
+    Y_solve_linear(ln_o, ln_r)
+    print('  Y solve', 'dr: ', data_r)
+    print('         ', 'do: ', data_o)
+    Y_apply_linear(nl_vec, nl_vec, ln_i, ln_o, ln_r, mode='rev', sign='neg')
+    print('  Y apply', 'dr:', data_r)
 
 
     print('X block')
-    X_solve_linear(ln_r, ln_o)
-    print('  X solve', 'r:', data_r)
-    print('         ', 'o: ', data_o)
-    X_apply_linear(nl_vec, nl_vec, ln_r, ln_o, ln_r, mode='rev', sign='neg')
-    print('  X apply', 'r: ', data_r)
+    # transfer('x',mode='rev')
+    X_solve_linear(ln_o, ln_r)
+    print('gone', ln_i['x'])
+    print('  X solve', 'dr:', data_r)
+    print('         ', 'do: ', data_o)
+    X_apply_linear(nl_vec, nl_vec, ln_i, ln_o, ln_r, mode='rev', sign='neg')
+    print('  X apply', 'dr: ', data_r)
 
-
+    print('wtf', ln_r['x'])
     print('dZ[0]/dx[0], dZ[0]/dx[1], dZ[0]/dx[2]', ln_r['x'])
 
 
