@@ -93,5 +93,6 @@ Thats the best place to get started.
     * conditionals 
     * for loops 
     * singularities 
+* Derivatives of time-dependent functions
 
 
