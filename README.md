@@ -44,7 +44,7 @@ Thats the best place to get started.
     * Cost of a nonlinear solve at start of opt vs at end
     * time to compute derivatives 
 * Weird Optimization Situations
-    * Singular objective function (possible optimal-control, example)
+    * Singular objective function (solar tracking example including non-sun hours)
     * Separable objectives 
     * constraint relaxation 
 * Nested optimization techniques for bumpy problems 
@@ -73,20 +73,24 @@ Thats the best place to get started.
 
 
 ### Model Differentiation 
-* Computing derivatives of explicit functions: FD, chain rule 
-* computing derivatives of implicit functions: FD, analytic derivatives
-* What to do with pseudo explicit functions? 
-* advanced methods for derivative computations: CS, AD
-* dealing with vector valued functions 
-    * diagonal 
-    * non-diagonal 
-    * sparse
+* Total derivatives vs partials derivatives 
+* Derivatives of scalar functions: 
+    * Computing derivatives of explicit functions: chain rule 
+    * computing derivatives of implicit functions: analytic derivatives
+    * What to do with pseudo explicit functions? 
+* Basic Differentiation Techniques: FD + chain rule, FD + analytic
+* Advanced Differentiation Techniques: CS, AD
+* Differentiation of vector valued functions 
+    * [diagonal](./simple_matrix_derivatives)
+    * [non-diagonal](./hard_matrix_derivatives)
+    * general sparse partials
+* Computing derivatives as cheaply as possible 
+    * Forward vs Reverse derivatives 
+    * UDE 
 * How to structure your code to be easily differentiable
 * Common gotchas
     * conditionals 
     * for loops 
     * singularities 
-* Computing derivatives as cheaply as possible 
-    * Forward vs Reverse derivatives 
-    * UDE 
+
 
