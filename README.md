@@ -79,15 +79,16 @@ Thats the best place to get started.
     * computing derivatives of implicit functions: analytic derivatives
     * What to do with pseudo explicit functions? 
 * Basic Differentiation Techniques: FD + chain rule, FD + analytic
-* Advanced Differentiation Techniques: CS, AD
+* Advanced Differentiation Techniques: CS, AD, CS + analytic, AD + analytic
 * Differentiation of vector valued functions 
     * [diagonal](./simple_matrix_derivatives)
     * [non-diagonal](./hard_matrix_derivatives)
     * general sparse partials
 * Computing derivatives as cheaply as possible 
     * Forward vs Reverse derivatives 
-    * UDE 
 * How to structure your code to be easily differentiable
+    * UDE 
+    * (advanced topic) [Linear solver architectures for the UDE](./gs_chainrule)
 * Common gotchas
     * conditionals 
     * for loops 
